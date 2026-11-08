@@ -3,7 +3,9 @@
 figures/merged_prs_per_month: stacked columns of merged PRs per month by org, October 2025
   to October 2026 (data/merged_prs_monthly.csv; the partial November row is left out).
 figures/us_pr_check_time: one dot per sampled passing policyengine-us PR run, by window,
-  on one hours axis, with each window's median marked (data/us_pr_ci_summary.json).
+  on one hours axis, jittered vertically by a seeded generator, with each window's median
+  marked (data/us_pr_ci_summary.json). Dots take a 1 px surface ring rather than 2 px, since the
+  after-window cluster packs over a hundred dots into about 50 px.
 Colors and marks follow the dataviz reference palette (light surface): categorical slots
 1 and 2 for the two orgs; two steps of the blue ramp for before and after.
 """
@@ -54,7 +56,9 @@ def column(x, y_top, y_bottom, bar, fill, rounded, radius=4):
 
 def merged_prs():
     rows = [r for r in csv.DictReader(open(os.path.join(ROOT, "data", "merged_prs_monthly.csv"))) if r["partial"] == "False"]
-    fetched = open(os.path.join(ROOT, "data", "merged_prs_fetched_at.txt")).read().strip()[:10]
+    import datetime as dt
+    day = dt.date.fromisoformat(open(os.path.join(ROOT, "data", "merged_prs_fetched_at.txt")).read().strip()[:10])
+    fetched = f"{MONTH_NAMES[day.month - 1]} {day.day}, {day.year}"
     left, right, top, bottom, bar, gap = 60, 776, 124, 372, 24, 2
     y_max = 4000
     ys = lambda v: bottom - (bottom - top) * v / y_max  # noqa: E731
@@ -94,35 +98,40 @@ def merged_prs():
 
 def check_time():
     s = json.load(open(os.path.join(ROOT, "data", "us_pr_ci_summary.json")))
-    left, right, top = 200, 776, 120
-    row_h, x_max_h = 110, 8
+    left, right, top = 236, 776, 120
+    row_h, x_max_h = 104, 7
     xs = lambda m: left + (right - left) * min(m / 60, x_max_h) / x_max_h  # noqa: E731
-    out = header("Time for a policyengine-us pull request's checks to pass",
-                 "One dot per sampled passing run, from the first job queued to the last job finished")
+    out = header("Time for a pull request to pass its checks",
+                 "PolicyEngine's US model (policyengine-us): one dot per sampled run that passed, first job queued to last job done")
     for hour in range(0, x_max_h + 1):
         x = xs(hour * 60)
-        out.append(f'<line x1="{x:.1f}" x2="{x:.1f}" y1="{top - 10}" y2="{top + 2 * row_h - 10}" stroke="{GRID}" stroke-width="1"/>')
-        out.append(text(x, top + 2 * row_h + 8, f"{hour} h" if hour else "0", fill=MUTED, anchor="middle"))
+        out.append(f'<line x1="{x:.1f}" x2="{x:.1f}" y1="{top - 6}" y2="{top + 2 * row_h - 6}" stroke="{GRID}" stroke-width="1"/>')
+        out.append(text(x, top + 2 * row_h + 12, f"{hour} h" if hour else "0", fill=MUTED, anchor="middle"))
     rows = [("before", BEFORE, "Oct 9–22", "GitHub Team, 60 jobs at once"),
             ("after", AFTER, "Oct 25–Nov 7", "GitHub Enterprise, 500 jobs at once")]
     for k, (name, color, dates, plan) in enumerate(rows):
         w = s[name]
-        cy = top + row_h * k + row_h / 2 - 10
+        cy = top + row_h * k + row_h / 2 - 6
         out.append(text(24, cy - 2, dates, size=13, fill=INK, weight=600))
         out.append(text(24, cy + 16, plan, size=11))
         rng = random.Random(f"jitter|{name}")
         for m in w["passing_check_minutes_all"]:
             out.append(f'<circle cx="{xs(m):.1f}" cy="{cy + rng.uniform(-22, 22):.1f}" r="4" fill="{color}" '
-                       f'stroke="{SURFACE}" stroke-width="2"/>')
+                       f'stroke="{SURFACE}" stroke-width="1"/>')
         med = w["passing_check_minutes"]["median"]
         mx = xs(med)
         out.append(f'<line x1="{mx:.1f}" x2="{mx:.1f}" y1="{cy - 32:.1f}" y2="{cy + 32:.1f}" stroke="{INK}" stroke-width="2"/>')
-        out.append(text(mx, cy - 38, f"median {med / 60:.1f} h", size=13, fill=INK, anchor="middle", weight=600, halo=True))
+        out.append(text(mx, cy - 40, f"median {med / 60:.1f} h", size=13, fill=INK, anchor="middle", weight=600, halo=True))
     over = sum(1 for n in ("before", "after") for m in s[n]["passing_check_minutes_all"] if m > x_max_h * 60)
-    note = f" Runs over {x_max_h} hours sit at the right edge ({over})." if over else ""
-    out.append(text(24, H - 34, f"Sample: {s['before']['strict_success_runs']} and {s['after']['strict_success_runs']} runs that passed on the first try, "
-                    f"from 200 random completed runs per window.{note}", size=11, fill=MUTED))
-    out.append(text(24, H - 18, "Source: GitHub Actions API. github.com/PolicyEngine/ci-capacity-analysis", size=11, fill=MUTED))
+    edge = f" {over} run{'s' if over != 1 else ''} over {x_max_h} hours sit{'' if over != 1 else 's'} at the right edge." if over else ""
+    notes = [
+        f"Sample: {s['before']['strict_success_runs']} and {s['after']['strict_success_runs']} runs that passed on the first try, "
+        f"from 200 random completed runs per window.{edge}",
+        "From Oct 24, the slowest tests also run in parallel shards (policyengine-us#10439).",
+        "Source: GitHub Actions API. github.com/PolicyEngine/ci-capacity-analysis",
+    ]
+    for i, n in enumerate(notes):
+        out.append(text(24, H - 50 + 16 * i, n, size=11, fill=MUTED))
     out.append("</svg>")
     return "\n".join(out)
 
