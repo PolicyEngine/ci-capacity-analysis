@@ -180,7 +180,69 @@
    343.15,
    348.21666666666664,
    391.56666666666666
-  ]
+  ],
+  "wait_by_suite": {
+   "all_jobs": {
+    "runs": 200,
+    "jobs": 5055,
+    "median": 21.983333333333334,
+    "p90": 85.93333333333334
+   },
+   "capped_suites": {
+    "runs": 200,
+    "jobs": 3780,
+    "median": 28.016666666666666,
+    "p90": 93.81666666666666
+   },
+   "other_jobs": {
+    "runs": 200,
+    "jobs": 1275,
+    "median": 6.866666666666666,
+    "p90": 48.916666666666664
+   }
+  },
+  "wait_by_cap_period": {
+   "runs_created_before_caps": {
+    "all_jobs": {
+     "runs": 110,
+     "jobs": 2670,
+     "median": 13.108333333333334,
+     "p90": 84.48333333333333
+    },
+    "capped_suites": {
+     "runs": 110,
+     "jobs": 2025,
+     "median": 18.65,
+     "p90": 89.53333333333333
+    },
+    "other_jobs": {
+     "runs": 110,
+     "jobs": 645,
+     "median": 4.166666666666667,
+     "p90": 56.8
+    }
+   },
+   "runs_created_with_caps": {
+    "all_jobs": {
+     "runs": 90,
+     "jobs": 2385,
+     "median": 26.4,
+     "p90": 87.78333333333333
+    },
+    "capped_suites": {
+     "runs": 90,
+     "jobs": 1755,
+     "median": 34.6,
+     "p90": 98.35
+    },
+    "other_jobs": {
+     "runs": 90,
+     "jobs": 630,
+     "median": 11.25,
+     "p90": 45.78333333333333
+    }
+   }
+  }
  },
  "after": {
   "frame": {
@@ -395,7 +457,27 @@
    91.93333333333334,
    92.06666666666666,
    92.76666666666667
-  ]
+  ],
+  "wait_by_suite": {
+   "all_jobs": {
+    "runs": 200,
+    "jobs": 6769,
+    "median": 0.05,
+    "p90": 0.06666666666666667
+   },
+   "capped_suites": {
+    "runs": 200,
+    "jobs": 3928,
+    "median": 0.05,
+    "p90": 0.06666666666666667
+   },
+   "other_jobs": {
+    "runs": 200,
+    "jobs": 2841,
+    "median": 0.05,
+    "p90": 0.06666666666666667
+   }
+  }
  },
  "ratios": {
   "passing_check_median_before_over_after": 2.1536895674300256,

@@ -7,7 +7,8 @@ Invariants:
 - jobs from later attempts, or with no runner, never change waits or wall time;
 - a run with a failed attempt-one job, or a non-success conclusion, is never a strict success;
 - nearest-rank quantiles rise with p and stay within the data's range;
-- the bootstrap interval is ordered, inside the data's range, and the same for the same seed.
+- the bootstrap interval is ordered, inside the data's range, and the same for the same seed;
+- splitting a run's waits into the capped suites and every other job loses and adds no wait.
 Differential: metrics.py matches the wait and wall definitions of analyze_post_upgrade.py in the
 2026-10-24 internal report, transcribed below as the reference.
 """
@@ -36,7 +37,10 @@ def jobs(draw, shift=0):
     duration = draw(st.integers(0, 400))
     runner = draw(st.booleans())
     return {
-        "name": draw(st.sampled_from(["Lint", "Test (1)", "Test (2)", "Contrib", "Baseline"])),
+        "name": draw(st.sampled_from([
+            "Lint", "Test (1)", "Test (2)", "Contrib", "Baseline",
+            "Baseline tests / Full Suite - Baseline (irs)", "Contrib tests / Full Suite - Contrib (congress)",
+        ])),
         "status": "completed",
         "conclusion": draw(st.sampled_from(["success", "skipped", "failure", "cancelled"])),
         "run_attempt": draw(st.sampled_from([1, 1, 1, 2])),
@@ -98,6 +102,24 @@ def test_strict_success_excludes_failures(run):
     failed = dict(run, jobs=run["jobs"] + [dict(run["jobs"][0], run_attempt=1, conclusion="failure")]) if run["jobs"] else None
     if failed:
         assert not metrics.strict_success(failed)
+
+
+@given(runs)
+def test_suite_split_partitions_the_waits(run):
+    capped = metrics.job_waits(run, metrics.in_capped_suite)
+    other = metrics.job_waits(run, lambda j: not metrics.in_capped_suite(j))
+    assert sorted(capped + other) == sorted(metrics.job_waits(run))
+    assert len(capped) == sum(1 for j in run["jobs"] if metrics.ran(j) and metrics.in_capped_suite(j))
+
+
+def test_capped_suites_match_the_workflow_job_names():
+    for name in ("Baseline tests / Full Suite - Baseline (states-shard-1)",
+                 "Contrib tests / Full Suite - Contrib (congress)"):
+        assert metrics.in_capped_suite({"name": name})
+    for name in ("Python tests / Full Suite - Microsimulation", "PR validation (lock, guard tests, lint, changelog)",
+                 "Python tests / Full Suite - Rest (Python shard 3)", "Contrib", "Baseline", ""):
+        assert not metrics.in_capped_suite({"name": name})
+    assert not metrics.in_capped_suite({})
 
 
 values = st.lists(st.floats(0, 1e4, allow_nan=False), min_size=1, max_size=200)

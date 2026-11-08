@@ -325,6 +325,6 @@
 <line x1="320.2" x2="320.2" y1="238.0" y2="302.0" stroke="#0b0b0b" stroke-width="2"/>
 <text x="320.2" y="230.0" font-size="13" fill="#0b0b0b" text-anchor="middle" font-weight="600" stroke="#fcfcfb" stroke-width="5" stroke-linejoin="round" paint-order="stroke">median 1.1 h</text>
 <text x="24.0" y="400.0" font-size="11" fill="#898781" text-anchor="start">Sample: 133 and 165 runs that passed on the first try, from 200 random completed runs per window.</text>
-<text x="24.0" y="416.0" font-size="11" fill="#898781" text-anchor="start">From Oct 24, the slowest tests also run in parallel shards (policyengine-us#10439).</text>
+<text x="24.0" y="416.0" font-size="11" fill="#898781" text-anchor="start">On Oct 23 and 24, we also started running more test jobs at once (policyengine-us#10416 and #10439).</text>
 <text x="24.0" y="432.0" font-size="11" fill="#898781" text-anchor="start">Source: GitHub Actions API. github.com/PolicyEngine/ci-capacity-analysis</text>
 </svg>

@@ -7,6 +7,9 @@ Input: data/us_pr_runs_sample.csv, data/us_pr_jobs_sample.csv and data/us_pr_fra
   every attempt-one job success or skipped), first job created to last job completed.
 Intervals: 95% percentile bootstrap over sampled runs (2,000 draws, seeded), so job waits
 inside one run stay together.
+Waits also split by suite: jobs in the Baseline and Contrib matrices, which policyengine-us#10231
+capped at six jobs at a time from 2026-10-15T16:46Z until #10416 removed the caps, against every
+other job; the before window also splits at #10231's merge, by when each run was created.
 Writes data/us_pr_ci_summary.json and prints a table.
 """
 
@@ -19,7 +22,18 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, HERE)
-from metrics import bootstrap_median, job_waits, median, quantile, strict_success, wall  # noqa: E402
+from metrics import (  # noqa: E402
+    bootstrap_median,
+    in_capped_suite,
+    job_waits,
+    median,
+    quantile,
+    strict_success,
+    t,
+    wall,
+)
+
+CAPS_SET = "2026-10-15T16:46:11Z"  # policyengine-us#10231 merged
 
 
 def load():
@@ -51,6 +65,19 @@ def frame_summary(window):
             "success_or_failure_per_day": (by["success"] + by["failure"]) / len(rows)}
 
 
+def wait_stats(runs, keep=None):
+    xs = [w for r in runs for w in job_waits(r, keep)]
+    return {"runs": len(runs), "jobs": len(xs), "median": median(xs), "p90": quantile(xs, 0.9)}
+
+
+def wait_by_suite(runs):
+    return {
+        "all_jobs": wait_stats(runs),
+        "capped_suites": wait_stats(runs, in_capped_suite),
+        "other_jobs": wait_stats(runs, lambda j: not in_capped_suite(j)),
+    }
+
+
 def window_summary(runs):
     waits_by_run = [job_waits(r) for r in runs]
     waits = [w for ws in waits_by_run for w in ws]
@@ -70,6 +97,7 @@ def window_summary(runs):
                                   "p90": quantile(walls, 0.9), "min": min(walls) if walls else None,
                                   "max": max(walls) if walls else None},
         "passing_check_minutes_all": sorted(walls),
+        "wait_by_suite": wait_by_suite(runs),
     }
 
 
@@ -78,6 +106,11 @@ def main():
     out = {}
     for name in ("before", "after"):
         out[name] = {"frame": frame_summary(name), **window_summary([r for r in runs if r["window"] == name])}
+    before = [r for r in runs if r["window"] == "before"]
+    out["before"]["wait_by_cap_period"] = {
+        "runs_created_before_caps": wait_by_suite([r for r in before if t(r["created_at"]) < t(CAPS_SET)]),
+        "runs_created_with_caps": wait_by_suite([r for r in before if t(r["created_at"]) >= t(CAPS_SET)]),
+    }
     b, a = out["before"], out["after"]
     out["ratios"] = {
         "passing_check_median_before_over_after": b["passing_check_minutes"]["median"] / a["passing_check_minutes"]["median"],
@@ -95,6 +128,11 @@ def main():
         pc = w["passing_check_minutes"]
         print(f"  passing check min ({w['strict_success_runs']} runs): median {pc['median']:.1f} "
               f"(95% CI {pc['median_95ci'][0]:.1f}-{pc['median_95ci'][1]:.1f}) p25 {pc['p25']:.1f} p75 {pc['p75']:.1f} p90 {pc['p90']:.1f}")
+        for k, v in w["wait_by_suite"].items():
+            print(f"  wait {k}: {v['jobs']} jobs, median {v['median']:.2f} p90 {v['p90']:.2f}")
+    for period, split in out["before"]["wait_by_cap_period"].items():
+        print(f"before, {period}: " + "; ".join(
+            f"{k} {v['runs']} runs {v['jobs']} jobs median {v['median']:.2f} p90 {v['p90']:.2f}" for k, v in split.items()))
     print("ratios", {k: round(v, 2) for k, v in out["ratios"].items()})
 
 

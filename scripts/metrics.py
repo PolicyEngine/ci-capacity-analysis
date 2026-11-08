@@ -4,7 +4,10 @@ All times are ISO 8601 strings from the GitHub Actions REST API, in UTC.
 - job wait: started_at - created_at, for attempt-one jobs that got a runner;
 - strict success: run conclusion success on attempt 1, every attempt-one job success or skipped;
 - run wall time: last attempt-one job completed_at - first attempt-one job created_at,
-  over jobs that got a runner.
+  over jobs that got a runner;
+- capped suites: the Baseline and Contrib matrix jobs. policyengine-us#10231 let each of those
+  suites run at most six jobs at a time from 2026-10-15T16:46Z, until #10416 removed the caps
+  at 2026-10-23T22:05Z.
 """
 
 import datetime as dt
@@ -27,8 +30,20 @@ def ran(job):
     )
 
 
-def job_waits(run):
-    return [minutes(j["created_at"], j["started_at"]) for j in run.get("jobs") or [] if ran(j)]
+def job_waits(run, keep=None):
+    """Waits in minutes of the run's attempt-one jobs that got a runner; keep(job) narrows the jobs."""
+    return [
+        minutes(j["created_at"], j["started_at"])
+        for j in run.get("jobs") or []
+        if ran(j) and (keep is None or keep(j))
+    ]
+
+
+CAPPED_SUITES = ("Baseline tests", "Contrib tests")
+
+
+def in_capped_suite(job):
+    return (job.get("name") or "").startswith(CAPPED_SUITES)
 
 
 def strict_success(run):

@@ -127,7 +127,7 @@ def check_time():
     notes = [
         f"Sample: {s['before']['strict_success_runs']} and {s['after']['strict_success_runs']} runs that passed on the first try, "
         f"from 200 random completed runs per window.{edge}",
-        "From Oct 24, the slowest tests also run in parallel shards (policyengine-us#10439).",
+        "On Oct 23 and 24, we also started running more test jobs at once (policyengine-us#10416 and #10439).",
         "Source: GitHub Actions API. github.com/PolicyEngine/ci-capacity-analysis",
     ]
     for i, n in enumerate(notes):
