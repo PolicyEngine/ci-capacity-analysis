@@ -23,8 +23,8 @@ PolicyEngine and Axiom merged 3,399 pull requests in October 2026, 16 times as m
 | | Oct 9–22, GitHub Team | Oct 25–Nov 7, GitHub Enterprise |
 |---|---:|---:|
 | Jobs GitHub runs at once for the organization | 60 | 500 |
-| Pull request runs GitHub listed, with skipped drafts and cancelled runs | 1,381 | 1,214 |
-| Runs that finished as success or failure | 522 (37.3 a day) | 712 (50.9 a day) |
+| Pull request runs created in the window, with skipped drafts and cancelled runs | 1,381 | 1,214 |
+| Runs created in the window that ended in success or failure | 522 (37.3 a day) | 712 (50.9 a day) |
 | Sampled runs | 200 | 200 |
 | Job wait for a runner, median (95% interval) | 22.0 min (15.7–26.8) | 3 s (3–3) |
 | Job wait, 90th percentile / longest | 85.9 / 189.6 min | 4 s / 5.8 min |
