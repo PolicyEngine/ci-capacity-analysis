@@ -7,10 +7,15 @@ All times are ISO 8601 strings from the GitHub Actions REST API, in UTC.
   over jobs that got a runner;
 - capped suites: the Baseline and Contrib matrix jobs. policyengine-us#10231 let each of those
   suites run at most six jobs at a time from 2026-10-15T16:46Z, until #10416 removed the caps
-  at 2026-10-23T22:05Z.
+  at 2026-10-23T22:05Z;
+- standard pool: jobs whose labels name a standard GitHub-hosted runner (ubuntu-*, windows-*,
+  macos-*) outside a larger-runner group. GitHub's plan limit counts these across the organization;
+- concurrency: at each whole minute t, a job runs when started_at <= t < completed_at and waits
+  when created_at <= t < started_at (or < completed_at when it never got a runner).
 """
 
 import datetime as dt
+import math
 import random
 import statistics as st
 
@@ -94,3 +99,36 @@ def bootstrap_median(groups, reps=2000, seed="ci-capacity-analysis", level=0.95)
     lo = meds[int((1 - level) / 2 * reps)]
     hi = meds[min(reps - 1, int((1 + level) / 2 * reps))]
     return lo, hi
+
+
+STANDARD_PREFIXES = ("ubuntu-", "windows-", "macos-")
+
+
+def standard_pool(job):
+    labels = job.get("labels") or []
+    group = (job.get("runner_group_name") or "").lower()
+    return any(label.startswith(STANDARD_PREFIXES) for label in labels) and "larger" not in group
+
+
+def sweep(intervals, lo, hi):
+    """Count, at each whole minute t in [lo, hi), the intervals [a, b) with a <= t < b.
+
+    intervals: pairs of datetimes; a pair with a missing end counts nowhere.
+    Returns one count per minute, starting at lo.
+    """
+    n = int((hi - lo).total_seconds() // 60)
+    delta = [0] * (n + 1)
+    for a, b in intervals:
+        if a is None or b is None or b <= lo or a >= hi:
+            continue
+        a, b = max(a, lo), min(b, hi)
+        i = math.ceil((a - lo).total_seconds() / 60)
+        k = math.ceil((b - lo).total_seconds() / 60)
+        if k > i:
+            delta[i] += 1
+            delta[k] -= 1
+    out, current = [], 0
+    for i in range(n):
+        current += delta[i]
+        out.append(current)
+    return out

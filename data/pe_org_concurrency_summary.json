@@ -1,0 +1,67 @@
+{
+ "window_utc": [
+  "2026-10-09T00:00:00Z",
+  "2026-10-23T00:00:00Z"
+ ],
+ "minutes": 20160,
+ "repositories": [
+  "chronicle",
+  "microcosm",
+  "microcosm-dynamics",
+  "policyengine-api",
+  "policyengine-core",
+  "policyengine-scorecard",
+  "policyengine-taxsim",
+  "policyengine-uk",
+  "policyengine-uk-data",
+  "policyengine-us",
+  "policyengine.py",
+  "uk-autumn-budget-dashboard-2026"
+ ],
+ "standard_jobs": 73876,
+ "limit": 60,
+ "running": {
+  "mean": 41.783878968253966,
+  "median": 54.0,
+  "p90": 60,
+  "p99": 71,
+  "max": 114
+ },
+ "minutes_running_at_or_over_limit": 4626,
+ "minutes_running_at_limit": 3492,
+ "minutes_running_over_limit": 1134,
+ "minutes_running_55_or_more": 9926,
+ "minutes_with_a_job_waiting": 12156,
+ "wait_by_jobs_running_at_creation": {
+  "0 to 29": {
+   "jobs": 8468,
+   "median_wait_minutes": 0.03333333333333333,
+   "p90_wait_minutes": 0.06666666666666667,
+   "share_over_5_minutes": 0.033892300425129904
+  },
+  "30 to 44": {
+   "jobs": 7843,
+   "median_wait_minutes": 0.03333333333333333,
+   "p90_wait_minutes": 0.18333333333333332,
+   "share_over_5_minutes": 0.06336860895065663
+  },
+  "45 to 54": {
+   "jobs": 5753,
+   "median_wait_minutes": 0.06666666666666667,
+   "p90_wait_minutes": 23.1,
+   "share_over_5_minutes": 0.21275856075091257
+  },
+  "55 to 59": {
+   "jobs": 17790,
+   "median_wait_minutes": 20.425,
+   "p90_wait_minutes": 71.43333333333334,
+   "share_over_5_minutes": 0.7676222596964587
+  },
+  "60 or more": {
+   "jobs": 13106,
+   "median_wait_minutes": 27.033333333333335,
+   "p90_wait_minutes": 86.71666666666667,
+   "share_over_5_minutes": 0.8180985808026858
+  }
+ }
+}

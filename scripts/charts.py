@@ -1,11 +1,12 @@
-"""Draw the two figures as SVG, then rasterize them to 1600x900 PNG with rsvg-convert.
+"""Draw the two figures as SVG, then rasterize them to 1600x1600 PNG with rsvg-convert.
 
+Both figures are square with large type, so their labels stay readable in a phone's feed
+(a 390 px wide screen shows them at about half the SVG's size).
 figures/merged_prs_per_month: stacked columns of merged PRs per month by org, October 2025
   to October 2026 (data/merged_prs_monthly.csv; the partial November row is left out).
-figures/us_pr_check_time: one dot per sampled passing policyengine-us PR run, by window,
-  on one hours axis, jittered vertically by a seeded generator, with each window's median
-  marked (data/us_pr_ci_summary.json). Dots take a 1 px surface ring rather than 2 px, since the
-  after-window cluster packs over a hundred dots into about 50 px.
+figures/us_pr_check_time: one dot per sampled policyengine-us PR run that passed on the first
+  try, by window, on one hours axis, jittered vertically by a seeded generator, with each
+  window's median marked (data/us_pr_ci_summary.json).
 Colors and marks follow the dataviz reference palette (light surface): categorical slots
 1 and 2 for the two orgs; two steps of the blue ramp for before and after.
 """
@@ -25,14 +26,16 @@ SURFACE, INK, INK_2, MUTED, GRID, AXIS = "#fcfcfb", "#0b0b0b", "#52514e", "#8987
 PE, AXIOM = "#2a78d6", "#eb6834"
 BEFORE, AFTER = "#86b6ef", "#2a78d6"
 FONT = "Helvetica Neue, Helvetica, Arial, sans-serif"
-W, H = 800, 450
+W, H = 800, 800
+TITLE, SUB, LABEL, VALUE, SOURCE = 36, 23, 22, 26, 18
 MONTH_NAMES = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split()
+REPO_URL = "github.com/PolicyEngine/ci-capacity-analysis"
 
 
-def text(x, y, s, size=12, fill=INK_2, anchor="start", weight=None, halo=False):
+def text(x, y, s, size=LABEL, fill=INK_2, anchor="start", weight=None, halo=False):
     extra = f' font-weight="{weight}"' if weight else ""
     if halo:
-        extra += f' stroke="{SURFACE}" stroke-width="5" stroke-linejoin="round" paint-order="stroke"'
+        extra += f' stroke="{SURFACE}" stroke-width="7" stroke-linejoin="round" paint-order="stroke"'
     return f'<text x="{x:.1f}" y="{y:.1f}" font-size="{size}" fill="{fill}" text-anchor="{anchor}"{extra}>{s}</text>'
 
 
@@ -40,12 +43,16 @@ def header(title, subtitle):
     return [
         f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}" font-family="{FONT}">',
         f'<rect width="{W}" height="{H}" fill="{SURFACE}"/>',
-        text(24, 40, title, size=20, fill=INK, weight=600),
-        text(24, 62, subtitle, size=13),
+        text(32, 64, title, size=TITLE, fill=INK, weight=600),
+        text(32, 100, subtitle, size=SUB),
     ]
 
 
-def column(x, y_top, y_bottom, bar, fill, rounded, radius=4):
+def footer(first_line):
+    return [text(32, H - 58, first_line, size=SOURCE, fill=MUTED), text(32, H - 32, REPO_URL, size=SOURCE, fill=MUTED)]
+
+
+def column(x, y_top, y_bottom, bar, fill, rounded, radius=5):
     if not rounded:
         return f'<rect x="{x:.1f}" y="{y_top:.1f}" width="{bar}" height="{y_bottom - y_top:.1f}" fill="{fill}"/>'
     r = min(radius, y_bottom - y_top)
@@ -59,17 +66,17 @@ def merged_prs():
     import datetime as dt
     day = dt.date.fromisoformat(open(os.path.join(ROOT, "data", "merged_prs_fetched_at.txt")).read().strip()[:10])
     fetched = f"{MONTH_NAMES[day.month - 1]} {day.day}, {day.year}"
-    left, right, top, bottom, bar, gap = 60, 776, 124, 372, 24, 2
+    left, right, top, bottom, bar, gap = 92, 776, 214, 640, 38, 2
     y_max = 4000
     ys = lambda v: bottom - (bottom - top) * v / y_max  # noqa: E731
-    out = header("Merged pull requests per month", "PolicyEngine and Axiom on GitHub, October 2025 to October 2026")
-    lx, ly = 24, 88
-    out += [f'<rect x="{lx}" y="{ly - 9}" width="10" height="10" rx="2" fill="{PE}"/>', text(lx + 16, ly, "PolicyEngine"),
-            f'<rect x="{lx + 104}" y="{ly - 9}" width="10" height="10" rx="2" fill="{AXIOM}"/>', text(lx + 120, ly, "Axiom")]
+    out = header("Merged pull requests per month", "PolicyEngine and Axiom, October 2025 to October 2026")
+    lx, ly = 32, 152
+    out += [f'<rect x="{lx}" y="{ly - 17}" width="18" height="18" rx="3" fill="{PE}"/>', text(lx + 28, ly, "PolicyEngine"),
+            f'<rect x="{lx + 190}" y="{ly - 17}" width="18" height="18" rx="3" fill="{AXIOM}"/>', text(lx + 218, ly, "Axiom")]
     for tick in (1000, 2000, 3000, 4000):
-        out.append(f'<line x1="{left}" x2="{right}" y1="{ys(tick):.1f}" y2="{ys(tick):.1f}" stroke="{GRID}" stroke-width="1"/>')
+        out.append(f'<line x1="{left}" x2="{right}" y1="{ys(tick):.1f}" y2="{ys(tick):.1f}" stroke="{GRID}" stroke-width="1.5"/>')
     for tick in (0, 1000, 2000, 3000, 4000):
-        out.append(text(left - 8, ys(tick) + 4, f"{tick:,}", fill=MUTED, anchor="end"))
+        out.append(text(left - 12, ys(tick) + 7, f"{tick:,}", fill=MUTED, anchor="end", size=20))
     slot = (right - left) / len(rows)
     totals = [int(r["PolicyEngine_all"]) + int(r["TheAxiomFoundation_all"]) for r in rows]
     peak = max(range(len(rows)), key=lambda i: totals[i])
@@ -78,60 +85,53 @@ def merged_prs():
         cx = left + slot * (i + 0.5)
         pe, ax = int(r["PolicyEngine_all"]), int(r["TheAxiomFoundation_all"])
         x = cx - bar / 2
-        draw_ax = (bottom - top) * ax / y_max >= 1.5  # a month with one or three Axiom PRs has no drawable body
+        draw_ax = (bottom - top) * ax / y_max >= 2  # a month with one or three Axiom PRs has no drawable body
         out.append(column(x, ys(pe), bottom, bar, PE, rounded=not draw_ax))
         if draw_ax:
-            y_b = ys(pe) - gap if (bottom - top) * ax / y_max >= 6 else ys(pe) - 1
+            y_b = ys(pe) - gap if (bottom - top) * ax / y_max >= 8 else ys(pe) - 1
             out.append(column(x, ys(pe + ax), y_b, bar, AXIOM, rounded=True))
         if i in labeled:
-            out.append(text(cx, ys(pe + ax) - 8, f"{pe + ax:,}", size=13, fill=INK, anchor="middle", weight=600, halo=True))
+            out.append(text(cx, ys(pe + ax) - 12, f"{pe + ax:,}", size=VALUE, fill=INK, anchor="middle", weight=600, halo=True))
         y, m = map(int, r["month"].split("-"))
-        out.append(text(cx, bottom + 20, MONTH_NAMES[m - 1], anchor="middle"))
+        out.append(text(cx, bottom + 32, MONTH_NAMES[m - 1], anchor="middle", size=20))
         if i == 0 or m == 1:
-            out.append(text(cx, bottom + 36, str(y), fill=MUTED, anchor="middle"))
-    out.append(f'<line x1="{left}" x2="{right}" y1="{bottom}" y2="{bottom}" stroke="{AXIS}" stroke-width="1"/>')
-    out.append(text(24, H - 18, f"Source: GitHub search, org:&lt;org&gt; is:pr is:merged, by month merged, counted {fetched}. "
-                    "github.com/PolicyEngine/ci-capacity-analysis", size=11, fill=MUTED))
+            out.append(text(cx, bottom + 58, str(y), fill=MUTED, anchor="middle", size=20))
+    out.append(f'<line x1="{left}" x2="{right}" y1="{bottom}" y2="{bottom}" stroke="{AXIS}" stroke-width="1.5"/>')
+    out += footer(f"Source: GitHub search, public and private repositories, counted {fetched}")
     out.append("</svg>")
     return "\n".join(out)
 
 
 def check_time():
     s = json.load(open(os.path.join(ROOT, "data", "us_pr_ci_summary.json")))
-    left, right, top = 236, 776, 120
-    row_h, x_max_h = 104, 7
+    left, right, x_max_h = 44, 756, 7
     xs = lambda m: left + (right - left) * min(m / 60, x_max_h) / x_max_h  # noqa: E731
-    out = header("Time for a pull request to pass its checks",
-                 "PolicyEngine's US model (policyengine-us): one dot per sampled run that passed, first job queued to last job done")
+    out = header("Time for pull request checks to pass",
+                 "PolicyEngine's US model. Each dot: one run that passed on the first try.")
+    rows = [("before", BEFORE, 306, "Oct 9–22, 2026", "GitHub Team: 60 jobs at once"),
+            ("after", AFTER, 572, "Oct 25–Nov 7, 2026", "GitHub Enterprise: 500 at once, our job caps lifted, longest tests split")]
+    grid_top, grid_bottom = 246, 640
     for hour in range(0, x_max_h + 1):
         x = xs(hour * 60)
-        out.append(f'<line x1="{x:.1f}" x2="{x:.1f}" y1="{top - 6}" y2="{top + 2 * row_h - 6}" stroke="{GRID}" stroke-width="1"/>')
-        out.append(text(x, top + 2 * row_h + 12, f"{hour} h" if hour else "0", fill=MUTED, anchor="middle"))
-    rows = [("before", BEFORE, "Oct 9–22", "GitHub Team, 60 jobs at once"),
-            ("after", AFTER, "Oct 25–Nov 7", "GitHub Enterprise, 500 jobs at once")]
-    for k, (name, color, dates, plan) in enumerate(rows):
+        out.append(f'<line x1="{x:.1f}" x2="{x:.1f}" y1="{grid_top}" y2="{grid_bottom}" stroke="{GRID}" stroke-width="1.5"/>')
+        out.append(text(x, grid_bottom + 30, f"{hour} h" if hour else "0", fill=MUTED, anchor="middle", size=20))
+    for name, color, cy, dates, plan in rows:
         w = s[name]
-        cy = top + row_h * k + row_h / 2 - 6
-        out.append(text(24, cy - 2, dates, size=13, fill=INK, weight=600))
-        out.append(text(24, cy + 16, plan, size=11))
+        out.append(text(32, cy - 138 if name == "before" else cy - 100, dates, size=24, fill=INK, weight=600))
+        out.append(text(32, cy - 110 if name == "before" else cy - 72, plan, size=19 if len(plan) > 40 else 21))
         rng = random.Random(f"jitter|{name}")
         for m in w["passing_check_minutes_all"]:
-            out.append(f'<circle cx="{xs(m):.1f}" cy="{cy + rng.uniform(-22, 22):.1f}" r="4" fill="{color}" '
-                       f'stroke="{SURFACE}" stroke-width="1"/>')
+            out.append(f'<circle cx="{xs(m):.1f}" cy="{cy + rng.uniform(-40, 40):.1f}" r="6" fill="{color}" '
+                       f'stroke="{SURFACE}" stroke-width="1.5"/>')
         med = w["passing_check_minutes"]["median"]
         mx = xs(med)
-        out.append(f'<line x1="{mx:.1f}" x2="{mx:.1f}" y1="{cy - 32:.1f}" y2="{cy + 32:.1f}" stroke="{INK}" stroke-width="2"/>')
-        out.append(text(mx, cy - 40, f"median {med / 60:.1f} h", size=13, fill=INK, anchor="middle", weight=600, halo=True))
-    over = sum(1 for n in ("before", "after") for m in s[n]["passing_check_minutes_all"] if m > x_max_h * 60)
-    edge = f" {over} run{'s' if over != 1 else ''} over {x_max_h} hours sit{'' if over != 1 else 's'} at the right edge." if over else ""
-    notes = [
-        f"Sample: {s['before']['strict_success_runs']} and {s['after']['strict_success_runs']} runs that passed on the first try, "
-        f"from 200 random completed runs per window.{edge}",
-        "On Oct 23 and 24, we also started running more test jobs at once (policyengine-us#10416 and #10439).",
-        "Source: GitHub Actions API. github.com/PolicyEngine/ci-capacity-analysis",
-    ]
-    for i, n in enumerate(notes):
-        out.append(text(24, H - 50 + 16 * i, n, size=11, fill=MUTED))
+        out.append(f'<line x1="{mx:.1f}" x2="{mx:.1f}" y1="{cy - 54}" y2="{cy + 54}" stroke="{INK}" stroke-width="3"/>')
+        label = f"median {med / 60:.1f} hours" if med >= 90 else f"median {med + 0.5:.0f} minutes"
+        if name == "before":
+            out.append(text(mx, cy - 64, label, size=VALUE, fill=INK, anchor="middle", weight=600, halo=True))
+        else:
+            out.append(text(xs(max(w["passing_check_minutes_all"])) + 22, cy + 9, label, size=VALUE, fill=INK, weight=600, halo=True))
+    out += footer("Source: GitHub Actions API, 200 random completed runs per period")
     out.append("</svg>")
     return "\n".join(out)
 
@@ -140,7 +140,7 @@ def save(name, svg):
     path = os.path.join(FIG, f"{name}.svg")
     open(path, "w", encoding="utf-8").write(svg)
     if shutil.which("rsvg-convert"):
-        subprocess.run(["rsvg-convert", "-w", "1600", "-h", "900", path, "-o", os.path.join(FIG, f"{name}.png")], check=True)
+        subprocess.run(["rsvg-convert", "-w", "1600", "-h", "1600", path, "-o", os.path.join(FIG, f"{name}.png")], check=True)
     print("wrote", path)
 
 

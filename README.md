@@ -1,10 +1,10 @@
 # CI capacity analysis
 
-PolicyEngine and Axiom merged 3,399 pull requests in October 2026, 16 times as many as in October 2025. This repository counts those merges. It also measures how long pull requests to PolicyEngine's US model ([policyengine-us](https://github.com/PolicyEngine/policyengine-us)) took to pass their checks in the two weeks before and the two weeks after PolicyEngine moved from GitHub Team to GitHub Enterprise Cloud on October 23, 2026.
+PolicyEngine and Axiom merged 3,399 pull requests in October 2026, 16 times as many as in October 2025. This repository counts those merges. It also measures how long checks on pull requests to PolicyEngine's US model ([policyengine-us](https://github.com/PolicyEngine/policyengine-us)) took to pass in the two weeks before and the two weeks after PolicyEngine moved from GitHub Team to GitHub Enterprise Cloud on October 23, 2026, and it counts how often the organization ran at the Team plan's 60-job limit.
 
 ## Merged pull requests
 
-![Merged pull requests per month](figures/merged_prs_per_month.png)
+<img src="figures/merged_prs_per_month.png" alt="Merged pull requests per month" width="560">
 
 | Month | PolicyEngine | Axiom | Both |
 |---|---:|---:|---:|
@@ -18,18 +18,19 @@ PolicyEngine and Axiom merged 3,399 pull requests in October 2026, 16 times as m
 
 ## Pull request checks on policyengine-us
 
-![Time for a pull request to pass its checks](figures/us_pr_check_time.png)
+<img src="figures/us_pr_check_time.png" alt="Time for pull request checks to pass" width="560">
 
 | | Oct 9–22, GitHub Team | Oct 25–Nov 7, GitHub Enterprise |
 |---|---:|---:|
 | Jobs GitHub runs at once for the organization | 60 | 500 |
-| Pull request runs that completed as success or failure | 522 (37.3 a day) | 712 (50.9 a day) |
+| Pull request runs GitHub listed, with skipped drafts and cancelled runs | 1,381 | 1,214 |
+| Runs that finished as success or failure | 522 (37.3 a day) | 712 (50.9 a day) |
 | Sampled runs | 200 | 200 |
 | Job wait for a runner, median (95% interval) | 22.0 min (15.7–26.8) | 3 s (3–3) |
 | Job wait, 90th percentile / longest | 85.9 / 189.6 min | 4 s / 5.8 min |
 | Jobs that waited over 5 minutes | 67.6% | 0.1% |
 | Sampled runs that passed on the first try | 133 | 165 |
-| Time to pass, median (95% interval) | 141 min (126–156) | 65.5 min (64.4–66.7) |
+| Time to pass, median (95% interval) | 141 min (126–156) | 66 min (64–67) |
 | Time to pass, 25th–75th percentile | 111–218 min | 63–71 min |
 
 Three changes separate the windows, and this analysis doesn't split the gain among them:
@@ -48,13 +49,34 @@ Jobs outside the Baseline and Contrib suites never had a cap, and they waited to
 | Oct 9–22, 90 runs created after it merged | 34.6 min (98.4) | 11.3 min (45.8) |
 | Oct 25–Nov 7, 200 runs | 3 s (4 s) | 3 s (4 s) |
 
-### Definitions
+## The 60-job limit
+
+GitHub's limits page gives an organization on the Team plan 60 jobs at once on standard runners, across all of its repositories. [`scripts/org_concurrency.py`](scripts/org_concurrency.py) counts the jobs running and waiting in each minute from October 9 to 22 in 12 PolicyEngine repositories, which ran 73,876 standard-runner jobs in those two weeks. Other repositories' jobs count toward the limit too, so the organization ran at least this many at once.
+
+- Those repositories ran 60 or more jobs at once in 4,626 of the 20,160 minutes (77 hours), and 55 or more in 9,926 (49%).
+- The count passed 60 in 1,134 minutes (6%) and peaked at 114.
+- At least one job waited to start in 12,156 minutes (60%).
+
+Jobs started within seconds while fewer than 45 were running, and most waited once 55 or more were:
+
+| Jobs running when GitHub created the job | Jobs | Median wait | Waited over 5 minutes |
+|---|---:|---:|---:|
+| Fewer than 30 | 8,468 | 2 s | 3% |
+| 30 to 44 | 7,843 | 2 s | 6% |
+| 45 to 54 | 5,753 | 4 s | 21% |
+| 55 to 59 | 17,790 | 20.4 min | 77% |
+| 60 or more | 13,106 | 27.0 min | 82% |
+
+The table leaves out policyengine-us's Baseline and Contrib jobs created after #10231 merged, since its caps held those jobs too. [`data/pe_org_concurrency_minutes.csv`](data/pe_org_concurrency_minutes.csv) holds the minute-by-minute counts.
+
+## Definitions
 
 [`scripts/metrics.py`](scripts/metrics.py) holds every definition, and the property-based tests in [`tests/`](tests) check them.
 
 - The population covers runs of `.github/workflows/pr.yaml` on `pull_request` events that completed as success or failure. A seeded generator draws 200 of them per window. Cancelled runs (usually a newer push replacing an older one) and skipped runs (draft pull requests) stay out of the sample; [`data/us_pr_frame_daily.csv`](data/us_pr_frame_daily.csv) counts them by day.
 - A job's wait runs from GitHub creating the job to a runner starting it, for first-attempt jobs that got a runner. GitHub creates every job of a test suite at once, so until #10416 the later jobs of a capped suite also waited here for earlier ones to finish.
 - A run's time to pass runs from its first job's creation to its last job's completion, for runs that succeeded on the first attempt with every job passing or skipped.
+- A job runs in a minute when a runner had started it and not yet finished it. It waits when GitHub had created it and no runner had started it. Only jobs for standard GitHub-hosted runners count.
 - A percentile bootstrap that resamples runs (2,000 draws) gives the 95% intervals, so the jobs of one run stay together.
 
 ## Reproduce
@@ -65,6 +87,8 @@ Each script makes read-only GitHub API calls through an authenticated [`gh`](htt
 python3 scripts/merged_prs.py        # data/merged_prs_monthly.csv
 python3 scripts/collect_us_pr_ci.py  # data/us_pr_*_sample.csv, data/us_pr_frame_daily.csv
 python3 scripts/analyze_ci.py        # data/us_pr_ci_summary.json
+python3 scripts/collect_org_jobs.py  # data/raw/org-jobs/ (about 10,000 requests)
+python3 scripts/org_concurrency.py   # data/pe_org_concurrency_*.csv and .json
 python3 scripts/charts.py            # figures/*.svg and *.png (rsvg-convert for the PNGs)
 uv run --with pytest --with hypothesis python -m pytest -q tests
 ```
