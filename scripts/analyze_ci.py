@@ -78,6 +78,17 @@ def wait_by_suite(runs):
     }
 
 
+def rest_runner_minutes(runs):
+    """Runner minutes the Rest Python test jobs used per run, for runs whose Rest jobs all passed."""
+    totals = []
+    for r in runs:
+        rest = [j for j in r["jobs"] if "Rest (" in j["name"] and j.get("run_attempt") == 1 and j.get("runner_name")
+                and j.get("started_at") and j.get("completed_at")]
+        if rest and all(j["conclusion"] == "success" for j in rest):
+            totals.append(sum((t(j["completed_at"]) - t(j["started_at"])).total_seconds() / 60 for j in rest))
+    return {"runs": len(totals), "median": median(totals)}
+
+
 def window_summary(runs):
     waits_by_run = [job_waits(r) for r in runs]
     waits = [w for ws in waits_by_run for w in ws]
@@ -98,6 +109,7 @@ def window_summary(runs):
                                   "max": max(walls) if walls else None},
         "passing_check_minutes_all": sorted(walls),
         "wait_by_suite": wait_by_suite(runs),
+        "rest_tests_runner_minutes": rest_runner_minutes(runs),
     }
 
 

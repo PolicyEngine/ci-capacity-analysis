@@ -131,6 +131,8 @@ def test_quantile_monotone_and_bounded(xs, p, q):
     assert metrics.quantile(xs, lo) <= metrics.quantile(xs, hi)
     assert min(xs) <= metrics.quantile(xs, lo) <= max(xs)
     assert metrics.quantile(xs, 0) == min(xs)
+    assert metrics.quantile(xs, 1) == max(xs)
+    assert sum(x <= metrics.quantile(xs, lo) for x in xs) >= lo * len(xs) - 1e-6
     assert min(xs) <= metrics.median(xs) <= max(xs)
 
 

@@ -1,60 +1,61 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
-<rect width="800" height="450" fill="#fcfcfb"/>
-<text x="24.0" y="40.0" font-size="20" fill="#0b0b0b" text-anchor="start" font-weight="600">Merged pull requests per month</text>
-<text x="24.0" y="62.0" font-size="13" fill="#52514e" text-anchor="start">PolicyEngine and Axiom on GitHub, October 2025 to October 2026</text>
-<rect x="24" y="79" width="10" height="10" rx="2" fill="#2a78d6"/>
-<text x="40.0" y="88.0" font-size="12" fill="#52514e" text-anchor="start">PolicyEngine</text>
-<rect x="128" y="79" width="10" height="10" rx="2" fill="#eb6834"/>
-<text x="144.0" y="88.0" font-size="12" fill="#52514e" text-anchor="start">Axiom</text>
-<line x1="60" x2="776" y1="310.0" y2="310.0" stroke="#e1e0d9" stroke-width="1"/>
-<line x1="60" x2="776" y1="248.0" y2="248.0" stroke="#e1e0d9" stroke-width="1"/>
-<line x1="60" x2="776" y1="186.0" y2="186.0" stroke="#e1e0d9" stroke-width="1"/>
-<line x1="60" x2="776" y1="124.0" y2="124.0" stroke="#e1e0d9" stroke-width="1"/>
-<text x="52.0" y="376.0" font-size="12" fill="#898781" text-anchor="end">0</text>
-<text x="52.0" y="314.0" font-size="12" fill="#898781" text-anchor="end">1,000</text>
-<text x="52.0" y="252.0" font-size="12" fill="#898781" text-anchor="end">2,000</text>
-<text x="52.0" y="190.0" font-size="12" fill="#898781" text-anchor="end">3,000</text>
-<text x="52.0" y="128.0" font-size="12" fill="#898781" text-anchor="end">4,000</text>
-<path d="M75.5,372.0 L75.5,362.9 Q75.5,358.9 79.5,358.9 L95.5,358.9 Q99.5,358.9 99.5,362.9 L99.5,372.0 Z" fill="#2a78d6"/>
-<text x="87.5" y="350.9" font-size="13" fill="#0b0b0b" text-anchor="middle" font-weight="600" stroke="#fcfcfb" stroke-width="5" stroke-linejoin="round" paint-order="stroke">212</text>
-<text x="87.5" y="392.0" font-size="12" fill="#52514e" text-anchor="middle">Oct</text>
-<text x="87.5" y="408.0" font-size="12" fill="#898781" text-anchor="middle">2025</text>
-<path d="M130.6,372.0 L130.6,359.3 Q130.6,355.3 134.6,355.3 L150.6,355.3 Q154.6,355.3 154.6,359.3 L154.6,372.0 Z" fill="#2a78d6"/>
-<text x="142.6" y="392.0" font-size="12" fill="#52514e" text-anchor="middle">Nov</text>
-<path d="M185.7,372.0 L185.7,354.1 Q185.7,350.1 189.7,350.1 L205.7,350.1 Q209.7,350.1 209.7,354.1 L209.7,372.0 Z" fill="#2a78d6"/>
-<text x="197.7" y="392.0" font-size="12" fill="#52514e" text-anchor="middle">Dec</text>
-<path d="M240.8,372.0 L240.8,354.2 Q240.8,350.2 244.8,350.2 L260.8,350.2 Q264.8,350.2 264.8,354.2 L264.8,372.0 Z" fill="#2a78d6"/>
-<text x="252.8" y="392.0" font-size="12" fill="#52514e" text-anchor="middle">Jan</text>
-<text x="252.8" y="408.0" font-size="12" fill="#898781" text-anchor="middle">2026</text>
-<rect x="295.8" y="340.9" width="24" height="31.1" fill="#2a78d6"/>
-<path d="M295.8,339.9 L295.8,339.9 Q295.8,338.8 296.9,338.8 L318.8,338.8 Q319.8,338.8 319.8,339.9 L319.8,339.9 Z" fill="#eb6834"/>
-<text x="307.8" y="392.0" font-size="12" fill="#52514e" text-anchor="middle">Feb</text>
-<rect x="350.9" y="338.0" width="24" height="34.0" fill="#2a78d6"/>
-<path d="M350.9,337.0 L350.9,337.0 Q350.9,334.5 353.4,334.5 L372.5,334.5 Q374.9,334.5 374.9,337.0 L374.9,337.0 Z" fill="#eb6834"/>
-<text x="362.9" y="392.0" font-size="12" fill="#52514e" text-anchor="middle">Mar</text>
-<rect x="406.0" y="306.4" width="24" height="65.6" fill="#2a78d6"/>
-<path d="M406.0,305.4 L406.0,305.4 Q406.0,304.2 407.2,304.2 L428.8,304.2 Q430.0,304.2 430.0,305.4 L430.0,305.4 Z" fill="#eb6834"/>
-<text x="418.0" y="392.0" font-size="12" fill="#52514e" text-anchor="middle">Apr</text>
-<rect x="461.1" y="290.6" width="24" height="81.4" fill="#2a78d6"/>
-<path d="M461.1,288.6 L461.1,237.9 Q461.1,233.9 465.1,233.9 L481.1,233.9 Q485.1,233.9 485.1,237.9 L485.1,288.6 Z" fill="#eb6834"/>
-<text x="473.1" y="392.0" font-size="12" fill="#52514e" text-anchor="middle">May</text>
-<rect x="516.2" y="319.4" width="24" height="52.6" fill="#2a78d6"/>
-<path d="M516.2,317.4 L516.2,263.2 Q516.2,259.2 520.2,259.2 L536.2,259.2 Q540.2,259.2 540.2,263.2 L540.2,317.4 Z" fill="#eb6834"/>
-<text x="528.2" y="392.0" font-size="12" fill="#52514e" text-anchor="middle">Jun</text>
-<rect x="571.2" y="279.2" width="24" height="92.8" fill="#2a78d6"/>
-<path d="M571.2,277.2 L571.2,150.9 Q571.2,146.9 575.2,146.9 L591.2,146.9 Q595.2,146.9 595.2,150.9 L595.2,277.2 Z" fill="#eb6834"/>
-<text x="583.2" y="138.9" font-size="13" fill="#0b0b0b" text-anchor="middle" font-weight="600" stroke="#fcfcfb" stroke-width="5" stroke-linejoin="round" paint-order="stroke">3,630</text>
-<text x="583.2" y="392.0" font-size="12" fill="#52514e" text-anchor="middle">Jul</text>
-<rect x="626.3" y="324.1" width="24" height="47.9" fill="#2a78d6"/>
-<path d="M626.3,322.1 L626.3,284.5 Q626.3,280.5 630.3,280.5 L646.3,280.5 Q650.3,280.5 650.3,284.5 L650.3,322.1 Z" fill="#eb6834"/>
-<text x="638.3" y="392.0" font-size="12" fill="#52514e" text-anchor="middle">Aug</text>
-<rect x="681.4" y="310.3" width="24" height="61.7" fill="#2a78d6"/>
-<path d="M681.4,308.3 L681.4,268.9 Q681.4,264.9 685.4,264.9 L701.4,264.9 Q705.4,264.9 705.4,268.9 L705.4,308.3 Z" fill="#eb6834"/>
-<text x="693.4" y="392.0" font-size="12" fill="#52514e" text-anchor="middle">Sep</text>
-<rect x="736.5" y="219.9" width="24" height="152.1" fill="#2a78d6"/>
-<path d="M736.5,217.9 L736.5,165.3 Q736.5,161.3 740.5,161.3 L756.5,161.3 Q760.5,161.3 760.5,165.3 L760.5,217.9 Z" fill="#eb6834"/>
-<text x="748.5" y="153.3" font-size="13" fill="#0b0b0b" text-anchor="middle" font-weight="600" stroke="#fcfcfb" stroke-width="5" stroke-linejoin="round" paint-order="stroke">3,399</text>
-<text x="748.5" y="392.0" font-size="12" fill="#52514e" text-anchor="middle">Oct</text>
-<line x1="60" x2="776" y1="372" y2="372" stroke="#c3c2b7" stroke-width="1"/>
-<text x="24.0" y="432.0" font-size="11" fill="#898781" text-anchor="start">Source: GitHub search, org:&lt;org&gt; is:pr is:merged, by month merged, counted Nov 8, 2026. github.com/PolicyEngine/ci-capacity-analysis</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" width="800" height="800" font-family="Helvetica Neue, Helvetica, Arial, sans-serif">
+<rect width="800" height="800" fill="#fcfcfb"/>
+<text x="32.0" y="64.0" font-size="36" fill="#0b0b0b" text-anchor="start" font-weight="600">Merged pull requests per month</text>
+<text x="32.0" y="100.0" font-size="23" fill="#52514e" text-anchor="start">PolicyEngine and Axiom, October 2025 to October 2026</text>
+<rect x="32" y="135" width="18" height="18" rx="3" fill="#2a78d6"/>
+<text x="60.0" y="152.0" font-size="22" fill="#52514e" text-anchor="start">PolicyEngine</text>
+<rect x="222" y="135" width="18" height="18" rx="3" fill="#eb6834"/>
+<text x="250.0" y="152.0" font-size="22" fill="#52514e" text-anchor="start">Axiom</text>
+<line x1="92" x2="776" y1="533.5" y2="533.5" stroke="#e1e0d9" stroke-width="1.5"/>
+<line x1="92" x2="776" y1="427.0" y2="427.0" stroke="#e1e0d9" stroke-width="1.5"/>
+<line x1="92" x2="776" y1="320.5" y2="320.5" stroke="#e1e0d9" stroke-width="1.5"/>
+<line x1="92" x2="776" y1="214.0" y2="214.0" stroke="#e1e0d9" stroke-width="1.5"/>
+<text x="80.0" y="647.0" font-size="20" fill="#898781" text-anchor="end">0</text>
+<text x="80.0" y="540.5" font-size="20" fill="#898781" text-anchor="end">1,000</text>
+<text x="80.0" y="434.0" font-size="20" fill="#898781" text-anchor="end">2,000</text>
+<text x="80.0" y="327.5" font-size="20" fill="#898781" text-anchor="end">3,000</text>
+<text x="80.0" y="221.0" font-size="20" fill="#898781" text-anchor="end">4,000</text>
+<path d="M99.3,640.0 L99.3,622.4 Q99.3,617.4 104.3,617.4 L132.3,617.4 Q137.3,617.4 137.3,622.4 L137.3,640.0 Z" fill="#2a78d6"/>
+<text x="118.3" y="605.4" font-size="26" fill="#0b0b0b" text-anchor="middle" font-weight="600" stroke="#fcfcfb" stroke-width="7" stroke-linejoin="round" paint-order="stroke">212</text>
+<text x="118.3" y="672.0" font-size="20" fill="#52514e" text-anchor="middle">Oct</text>
+<text x="118.3" y="698.0" font-size="20" fill="#898781" text-anchor="middle">2025</text>
+<path d="M151.9,640.0 L151.9,616.4 Q151.9,611.4 156.9,611.4 L184.9,611.4 Q189.9,611.4 189.9,616.4 L189.9,640.0 Z" fill="#2a78d6"/>
+<text x="170.9" y="672.0" font-size="20" fill="#52514e" text-anchor="middle">Nov</text>
+<path d="M204.5,640.0 L204.5,607.3 Q204.5,602.3 209.5,602.3 L237.5,602.3 Q242.5,602.3 242.5,607.3 L242.5,640.0 Z" fill="#2a78d6"/>
+<text x="223.5" y="672.0" font-size="20" fill="#52514e" text-anchor="middle">Dec</text>
+<path d="M257.2,640.0 L257.2,607.6 Q257.2,602.6 262.2,602.6 L290.2,602.6 Q295.2,602.6 295.2,607.6 L295.2,640.0 Z" fill="#2a78d6"/>
+<text x="276.2" y="672.0" font-size="20" fill="#52514e" text-anchor="middle">Jan</text>
+<text x="276.2" y="698.0" font-size="20" fill="#898781" text-anchor="middle">2026</text>
+<rect x="309.8" y="586.5" width="38" height="53.5" fill="#2a78d6"/>
+<path d="M309.8,585.5 L309.8,585.5 Q309.8,583.0 312.3,583.0 L345.3,583.0 Q347.8,583.0 347.8,585.5 L347.8,585.5 Z" fill="#eb6834"/>
+<text x="328.8" y="672.0" font-size="20" fill="#52514e" text-anchor="middle">Feb</text>
+<rect x="362.4" y="581.5" width="38" height="58.5" fill="#2a78d6"/>
+<path d="M362.4,580.5 L362.4,580.5 Q362.4,575.6 367.3,575.6 L395.4,575.6 Q400.4,575.6 400.4,580.5 L400.4,580.5 Z" fill="#eb6834"/>
+<text x="381.4" y="672.0" font-size="20" fill="#52514e" text-anchor="middle">Mar</text>
+<rect x="415.0" y="527.3" width="38" height="112.7" fill="#2a78d6"/>
+<path d="M415.0,526.3 L415.0,526.3 Q415.0,523.5 417.8,523.5 L450.2,523.5 Q453.0,523.5 453.0,526.3 L453.0,526.3 Z" fill="#eb6834"/>
+<text x="434.0" y="672.0" font-size="20" fill="#52514e" text-anchor="middle">Apr</text>
+<rect x="467.6" y="500.2" width="38" height="139.8" fill="#2a78d6"/>
+<path d="M467.6,498.2 L467.6,407.7 Q467.6,402.7 472.6,402.7 L500.6,402.7 Q505.6,402.7 505.6,407.7 L505.6,498.2 Z" fill="#eb6834"/>
+<text x="486.6" y="672.0" font-size="20" fill="#52514e" text-anchor="middle">May</text>
+<rect x="520.2" y="549.7" width="38" height="90.3" fill="#2a78d6"/>
+<path d="M520.2,547.7 L520.2,451.3 Q520.2,446.3 525.2,446.3 L553.2,446.3 Q558.2,446.3 558.2,451.3 L558.2,547.7 Z" fill="#eb6834"/>
+<text x="539.2" y="672.0" font-size="20" fill="#52514e" text-anchor="middle">Jun</text>
+<rect x="572.8" y="480.7" width="38" height="159.3" fill="#2a78d6"/>
+<path d="M572.8,478.7 L572.8,258.4 Q572.8,253.4 577.8,253.4 L605.8,253.4 Q610.8,253.4 610.8,258.4 L610.8,478.7 Z" fill="#eb6834"/>
+<text x="591.8" y="241.4" font-size="26" fill="#0b0b0b" text-anchor="middle" font-weight="600" stroke="#fcfcfb" stroke-width="7" stroke-linejoin="round" paint-order="stroke">3,630</text>
+<text x="591.8" y="672.0" font-size="20" fill="#52514e" text-anchor="middle">Jul</text>
+<rect x="625.5" y="557.7" width="38" height="82.3" fill="#2a78d6"/>
+<path d="M625.5,555.7 L625.5,487.8 Q625.5,482.8 630.5,482.8 L658.5,482.8 Q663.5,482.8 663.5,487.8 L663.5,555.7 Z" fill="#eb6834"/>
+<text x="644.5" y="672.0" font-size="20" fill="#52514e" text-anchor="middle">Aug</text>
+<rect x="678.1" y="534.0" width="38" height="106.0" fill="#2a78d6"/>
+<path d="M678.1,532.0 L678.1,461.0 Q678.1,456.0 683.1,456.0 L711.1,456.0 Q716.1,456.0 716.1,461.0 L716.1,532.0 Z" fill="#eb6834"/>
+<text x="697.1" y="672.0" font-size="20" fill="#52514e" text-anchor="middle">Sep</text>
+<rect x="730.7" y="378.6" width="38" height="261.4" fill="#2a78d6"/>
+<path d="M730.7,376.6 L730.7,283.0 Q730.7,278.0 735.7,278.0 L763.7,278.0 Q768.7,278.0 768.7,283.0 L768.7,376.6 Z" fill="#eb6834"/>
+<text x="749.7" y="266.0" font-size="26" fill="#0b0b0b" text-anchor="middle" font-weight="600" stroke="#fcfcfb" stroke-width="7" stroke-linejoin="round" paint-order="stroke">3,399</text>
+<text x="749.7" y="672.0" font-size="20" fill="#52514e" text-anchor="middle">Oct</text>
+<line x1="92" x2="776" y1="640" y2="640" stroke="#c3c2b7" stroke-width="1.5"/>
+<text x="32.0" y="742.0" font-size="19" fill="#898781" text-anchor="start">Source: GitHub search, public and private repositories, counted Nov 8, 2026</text>
+<text x="32.0" y="768.0" font-size="19" fill="#898781" text-anchor="start">github.com/PolicyEngine/ci-capacity-analysis</text>
 </svg>
