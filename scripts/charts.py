@@ -13,6 +13,7 @@ Colors and marks follow the dataviz reference palette (light surface): categoric
 
 import csv
 import json
+import math
 import os
 import random
 import shutil
@@ -27,7 +28,7 @@ PE, AXIOM = "#2a78d6", "#eb6834"
 BEFORE, AFTER = "#86b6ef", "#2a78d6"
 FONT = "Helvetica Neue, Helvetica, Arial, sans-serif"
 W, H = 800, 800
-TITLE, SUB, LABEL, VALUE, SOURCE = 36, 23, 22, 26, 18
+TITLE, SUB, LABEL, VALUE, SOURCE = 36, 23, 22, 26, 19
 MONTH_NAMES = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split()
 REPO_URL = "github.com/PolicyEngine/ci-capacity-analysis"
 
@@ -48,8 +49,9 @@ def header(title, subtitle):
     ]
 
 
-def footer(first_line):
-    return [text(32, H - 58, first_line, size=SOURCE, fill=MUTED), text(32, H - 32, REPO_URL, size=SOURCE, fill=MUTED)]
+def footer(*lines):
+    lines = list(lines) + [REPO_URL]
+    return [text(32, H - 32 - 26 * (len(lines) - 1 - k), line, size=SOURCE, fill=MUTED) for k, line in enumerate(lines)]
 
 
 def column(x, y_top, y_bottom, bar, fill, rounded, radius=5):
@@ -108,17 +110,21 @@ def check_time():
     xs = lambda m: left + (right - left) * min(m / 60, x_max_h) / x_max_h  # noqa: E731
     out = header("Time for pull request checks to pass",
                  "PolicyEngine's US model. Each dot: one run that passed on the first try.")
-    rows = [("before", BEFORE, 306, "Oct 9–22, 2026", "GitHub Team: 60 jobs at once"),
-            ("after", AFTER, 572, "Oct 25–Nov 7, 2026", "GitHub Enterprise: 500 at once, our job caps lifted, longest tests split")]
-    grid_top, grid_bottom = 246, 640
+    rows = [("before", BEFORE, 306, "Oct 9–22, 2026", ["GitHub Team: 60 jobs at once"]),
+            ("after", AFTER, 578, "Oct 25–Nov 7, 2026", ["GitHub Enterprise: 500 jobs at once,",
+                                                         "plus our job caps lifted and longest tests split"])]
+    grid_bottom = 646
     for hour in range(0, x_max_h + 1):
         x = xs(hour * 60)
-        out.append(f'<line x1="{x:.1f}" x2="{x:.1f}" y1="{grid_top}" y2="{grid_bottom}" stroke="{GRID}" stroke-width="1.5"/>')
+        for _, _, cy, _, _ in rows:
+            out.append(f'<line x1="{x:.1f}" x2="{x:.1f}" y1="{cy - 58}" y2="{cy + 58}" stroke="{GRID}" stroke-width="1.5"/>')
         out.append(text(x, grid_bottom + 30, f"{hour} h" if hour else "0", fill=MUTED, anchor="middle", size=20))
     for name, color, cy, dates, plan in rows:
         w = s[name]
-        out.append(text(32, cy - 138 if name == "before" else cy - 100, dates, size=24, fill=INK, weight=600))
-        out.append(text(32, cy - 110 if name == "before" else cy - 72, plan, size=19 if len(plan) > 40 else 21))
+        top = cy - 138 if name == "before" else cy - 126
+        out.append(text(32, top, dates, size=24, fill=INK, weight=600))
+        for k, line in enumerate(plan):
+            out.append(text(32, top + 28 + 26 * k, line, size=21))
         rng = random.Random(f"jitter|{name}")
         for m in w["passing_check_minutes_all"]:
             out.append(f'<circle cx="{xs(m):.1f}" cy="{cy + rng.uniform(-40, 40):.1f}" r="6" fill="{color}" '
@@ -126,12 +132,14 @@ def check_time():
         med = w["passing_check_minutes"]["median"]
         mx = xs(med)
         out.append(f'<line x1="{mx:.1f}" x2="{mx:.1f}" y1="{cy - 54}" y2="{cy + 54}" stroke="{INK}" stroke-width="3"/>')
-        label = f"median {med / 60:.1f} hours" if med >= 90 else f"median {med + 0.5:.0f} minutes"
+        label = f"median {med / 60:.1f} hours" if med >= 90 else f"median {math.floor(med + 0.5)} minutes"
         if name == "before":
             out.append(text(mx, cy - 64, label, size=VALUE, fill=INK, anchor="middle", weight=600, halo=True))
         else:
             out.append(text(xs(max(w["passing_check_minutes_all"])) + 22, cy + 9, label, size=VALUE, fill=INK, weight=600, halo=True))
-    out += footer("Source: GitHub Actions API, 200 random completed runs per period")
+    first_try = f"{s['before']['strict_success_runs']} and {s['after']['strict_success_runs']}"
+    out += footer("Source: GitHub Actions API. Dots show the first-try passes",
+                  f"({first_try}) among 200 random finished runs per period.")
     out.append("</svg>")
     return "\n".join(out)
 

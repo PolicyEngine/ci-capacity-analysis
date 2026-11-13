@@ -4,7 +4,8 @@ Window: runs created 2026-10-09 through 2026-10-22 (UTC), the two weeks before t
 left GitHub Team. Read-only REST GETs through an authenticated `gh`; every repository is public.
 Writes, resumably, one line per run to data/raw/org-jobs/jobs-<repo>.jsonl:
   {"id": run id, "created_at": ..., "jobs": [every attempt's jobs]}
-A rerun skips runs already saved. Runs GitHub skipped hold no jobs and get no line.
+A rerun skips runs whose saved jobs have all completed and pulls the others again (the analysis
+reads each run's latest line). Runs GitHub skipped hold no jobs and get no line.
 Usage: collect_org_jobs.py [repo ...]   (default: every repository in REPOS)
 """
 
@@ -52,9 +53,15 @@ def jobs_of(repo, run_id):
 
 
 def saved_ids(path):
+    """Runs whose latest saved record shows every job completed."""
     if not os.path.exists(path):
         return set()
-    return {json.loads(line)["id"] for line in open(path) if line.strip()}
+    done = {}
+    for line in open(path):
+        if line.strip():
+            record = json.loads(line)
+            done[record["id"]] = all(j.get("status") == "completed" for j in record["jobs"])
+    return {run_id for run_id, complete in done.items() if complete}
 
 
 def main():

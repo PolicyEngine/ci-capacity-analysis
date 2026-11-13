@@ -37,46 +37,46 @@ Three changes separate the windows, and this analysis doesn't split the gain amo
 
 - When PolicyEngine moved to Enterprise Cloud, GitHub raised its limit from 60 to 500 jobs at once on standard runners ([GitHub's Actions limits](https://docs.github.com/en/actions/reference/limits)). The organization's plan first read `enterprise` at 16:25 UTC on October 23.
 - In [policyengine-us#10416](https://github.com/PolicyEngine/policyengine-us/pull/10416), merged at 22:05 UTC on October 23, Ziming Hua removed caps that held each pull request's Baseline and Contrib test suites to six jobs at a time. He had added them on October 15, in [policyengine-us#10231](https://github.com/PolicyEngine/policyengine-us/pull/10231), to share the organization's 60 runners among pull requests.
-- In [policyengine-us#10439](https://github.com/PolicyEngine/policyengine-us/pull/10439), merged at 01:30 UTC on October 24, he moved the Rest Python tests, the longest path through CI, from two runners in sequence to parallel shards that a planning job balances from recent test timings.
+- In [policyengine-us#10439](https://github.com/PolicyEngine/policyengine-us/pull/10439), merged at 01:30 UTC on October 24, he moved the Rest Python tests, the longest path through CI, from two runners in sequence to parallel shards that a planning job balances from recent test timings. Those tests used more runner time afterward, a median 177 runner-minutes a run against 99, and finished sooner because the shards ran side by side.
 
 The comparison leaves out October 23 and 24.
 
-Jobs outside the Baseline and Contrib suites never had a cap, and they waited too. Before the caps, Baseline and Contrib jobs already waited a median 18.7 minutes:
+The caps did not cover the other jobs, which also waited. Before the caps, Baseline and Contrib jobs already waited a median 18.7 minutes:
 
 | Job wait for a runner, median (90th percentile) | Baseline and Contrib jobs | Every other job |
 |---|---:|---:|
 | Oct 9–22, 110 runs created before #10231 merged | 18.7 min (89.5) | 4.2 min (56.8) |
-| Oct 9–22, 90 runs created after it merged | 34.6 min (98.4) | 11.3 min (45.8) |
+| Oct 9–22, 90 runs created after it merged | 34.6 min (98.4) | 11.3 min (45.1) |
 | Oct 25–Nov 7, 200 runs | 3 s (4 s) | 3 s (4 s) |
 
 ## The 60-job limit
 
-GitHub's limits page gives an organization on the Team plan 60 jobs at once on standard runners, across all of its repositories. [`scripts/org_concurrency.py`](scripts/org_concurrency.py) counts the jobs running and waiting in each minute from October 9 to 22 in 12 PolicyEngine repositories, which ran 73,876 standard-runner jobs in those two weeks. Other repositories' jobs count toward the limit too, so the organization ran at least this many at once.
+GitHub's limits page gives an organization on the Team plan 60 jobs at once on standard GitHub-hosted runners, across all of its repositories. [`scripts/org_concurrency.py`](scripts/org_concurrency.py) counts the jobs running and waiting in each minute from October 9 to 22 in 12 PolicyEngine repositories. Runs created there in those two weeks started 57,357 jobs on standard runners. Jobs in other repositories, and in runs created before October 9, count toward the limit too, so the organization ran at least this many at once.
 
-- Those repositories ran 60 or more jobs at once in 4,626 of the 20,160 minutes (77 hours), and 55 or more in 9,926 (49%).
-- The count passed 60 in 1,134 minutes (6%) and peaked at 114.
+- Those repositories ran 60 jobs at once in 4,025 of the 20,160 minutes (67 hours), and 55 or more in 9,842 (49%).
+- The count never passed 60, apart from two minutes at 61.
 - At least one job waited to start in 12,156 minutes (60%).
 
 Jobs started within seconds while fewer than 45 were running, and most waited once 55 or more were:
 
-| Jobs running when GitHub created the job | Jobs | Median wait | Waited over 5 minutes |
+| Jobs running at the second GitHub created the job | Jobs | Median wait | Waited over 5 minutes |
 |---|---:|---:|---:|
-| Fewer than 30 | 8,468 | 2 s | 3% |
-| 30 to 44 | 7,843 | 2 s | 6% |
-| 45 to 54 | 5,753 | 4 s | 21% |
-| 55 to 59 | 17,790 | 20.4 min | 77% |
-| 60 or more | 13,106 | 27.0 min | 82% |
+| Fewer than 30 | 8,119 | 2 s | 3% |
+| 30 to 44 | 7,840 | 2 s | 3% |
+| 45 to 54 | 6,370 | 9 s | 27% |
+| 55 to 59 | 25,765 | 23.2 min | 80% |
+| 60 or more | 4,264 | 27.4 min | 82% |
 
-The table leaves out policyengine-us's Baseline and Contrib jobs created after #10231 merged, since its caps held those jobs too. [`data/pe_org_concurrency_minutes.csv`](data/pe_org_concurrency_minutes.csv) holds the minute-by-minute counts.
+The table leaves out policyengine-us's Baseline and Contrib jobs created after #10231 merged, since its caps held those jobs too. When someone re-runs part of a run, GitHub lists the jobs the new attempt carries over a second time, and the script counts each of them once. [`data/pe_org_executions.csv.gz`](data/pe_org_executions.csv.gz) holds each job's times, and [`data/pe_org_concurrency_minutes.csv`](data/pe_org_concurrency_minutes.csv) the minute-by-minute counts.
 
 ## Definitions
 
 [`scripts/metrics.py`](scripts/metrics.py) holds every definition, and the property-based tests in [`tests/`](tests) check them.
 
 - The population covers runs of `.github/workflows/pr.yaml` on `pull_request` events that completed as success or failure. A seeded generator draws 200 of them per window. Cancelled runs (usually a newer push replacing an older one) and skipped runs (draft pull requests) stay out of the sample; [`data/us_pr_frame_daily.csv`](data/us_pr_frame_daily.csv) counts them by day.
-- A job's wait runs from GitHub creating the job to a runner starting it, for first-attempt jobs that got a runner. GitHub creates every job of a test suite at once, so until #10416 the later jobs of a capped suite also waited here for earlier ones to finish.
+- A job's wait runs from GitHub creating the job to a runner starting it, for first-attempt jobs that got a runner. Until #10416, this wait includes the time a capped suite's later jobs spent held behind its six-job cap, as well as waits for a runner.
 - A run's time to pass runs from its first job's creation to its last job's completion, for runs that succeeded on the first attempt with every job passing or skipped.
-- A job runs in a minute when a runner had started it and not yet finished it. It waits when GitHub had created it and no runner had started it. Only jobs for standard GitHub-hosted runners count.
+- A job runs in a minute when a runner had started it and not yet finished it. It waits when GitHub had created it and no runner had started it. Only jobs for standard GitHub-hosted runners count, each execution once.
 - A percentile bootstrap that resamples runs (2,000 draws) gives the 95% intervals, so the jobs of one run stay together.
 
 ## Reproduce
@@ -88,7 +88,7 @@ python3 scripts/merged_prs.py        # data/merged_prs_monthly.csv
 python3 scripts/collect_us_pr_ci.py  # data/us_pr_*_sample.csv, data/us_pr_frame_daily.csv
 python3 scripts/analyze_ci.py        # data/us_pr_ci_summary.json
 python3 scripts/collect_org_jobs.py  # data/raw/org-jobs/ (about 10,000 requests)
-python3 scripts/org_concurrency.py   # data/pe_org_concurrency_*.csv and .json
+python3 scripts/org_concurrency.py   # data/pe_org_executions.csv.gz, data/pe_org_concurrency_*
 python3 scripts/charts.py            # figures/*.svg and *.png (rsvg-convert for the PNGs)
 uv run --with pytest --with hypothesis python -m pytest -q tests
 ```

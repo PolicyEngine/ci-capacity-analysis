@@ -56,6 +56,6 @@
 <text x="749.7" y="266.0" font-size="26" fill="#0b0b0b" text-anchor="middle" font-weight="600" stroke="#fcfcfb" stroke-width="7" stroke-linejoin="round" paint-order="stroke">3,399</text>
 <text x="749.7" y="672.0" font-size="20" fill="#52514e" text-anchor="middle">Oct</text>
 <line x1="92" x2="776" y1="640" y2="640" stroke="#c3c2b7" stroke-width="1.5"/>
-<text x="32.0" y="742.0" font-size="18" fill="#898781" text-anchor="start">Source: GitHub search, public and private repositories, counted Nov 8, 2026</text>
-<text x="32.0" y="768.0" font-size="18" fill="#898781" text-anchor="start">github.com/PolicyEngine/ci-capacity-analysis</text>
+<text x="32.0" y="742.0" font-size="19" fill="#898781" text-anchor="start">Source: GitHub search, public and private repositories, counted Nov 8, 2026</text>
+<text x="32.0" y="768.0" font-size="19" fill="#898781" text-anchor="start">github.com/PolicyEngine/ci-capacity-analysis</text>
 </svg>
